@@ -8,6 +8,7 @@
 import Foundation
 
 protocol ShoppingListViewModelProtocol: AnyObject {
+    func loadItems()
     func numberOfRows() -> Int
     func itemForRow(at index: Int) -> MarketItem
     func updateQuantity(itemID: UUID, quantity: Int)
@@ -23,6 +24,11 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
     
     init(repository: RepositoryProtocol = Repository()) {
         self.repository = repository
+        loadItems()
+    }
+    
+    func loadItems() {
+        marketItems = repository.loadItems()
     }
     
     func numberOfRows() -> Int {
@@ -38,7 +44,7 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
             let oldItem = marketItems[index]
             let updatedItem = MarketItem(name: oldItem.name, unitPrice: oldItem.unitPrice, quantity: quantity)
             
-            marketItems.append(updatedItem)
+            marketItems[index] = updatedItem
             repository.saveItems(marketItems)
         }
     }
