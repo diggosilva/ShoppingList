@@ -8,6 +8,8 @@
 import Foundation
 
 protocol ShoppingListViewModelProtocol: AnyObject {
+    var onDataChanged: (() -> Void)? { get set }
+    
     func loadItems()
     func numberOfRows() -> Int
     func itemForRow(at index: Int) -> MarketItem
@@ -22,6 +24,8 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
     private var marketItems: [MarketItem] = []
     private let repository: RepositoryProtocol
     
+    var onDataChanged: (() -> Void)?
+    
     init(repository: RepositoryProtocol = Repository()) {
         self.repository = repository
         loadItems()
@@ -29,6 +33,7 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
     
     func loadItems() {
         marketItems = repository.loadItems()
+        onDataChanged?()
     }
     
     func numberOfRows() -> Int {
@@ -46,18 +51,21 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
             
             marketItems[index] = updatedItem
             repository.saveItems(marketItems)
+            onDataChanged?()
         }
     }
     
     func addItem(_ item: MarketItem) {
         marketItems.append(item)
         repository.saveItems(marketItems)
+        onDataChanged?()
     }
     
     func removeItem(at index: Int) {
         guard marketItems.indices.contains(index) else { return }
         marketItems.remove(at: index)
         repository.saveItems(marketItems)
+        onDataChanged?()
     }
     
     func totalValue() -> Double {
