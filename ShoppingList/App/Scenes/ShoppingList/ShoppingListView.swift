@@ -10,11 +10,13 @@ import UIKit
 class ShoppingListView: UIView {
     
     lazy var tableView: UITableView = {
-        let tv = UITableView()
+        let tv = UITableView(frame: .zero, style: .insetGrouped)
         tv.translatesAutoresizingMaskIntoConstraints = false
-        tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tv.register(ShoppingListCell.self, forCellReuseIdentifier: ShoppingListCell.identififer)
         return tv
     }()
+    
+    lazy var totalLabel = buildLabel(font: .systemFont(ofSize: 24, weight: .bold), text: "Total: R$ 0,00", textAlignment: .right)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -29,7 +31,7 @@ class ShoppingListView: UIView {
     }
     
     private func setHierarchy() {
-        addSubview(tableView)
+        addSubviews(tableView, totalLabel)
         backgroundColor = .systemBackground
     }
     
@@ -38,7 +40,11 @@ class ShoppingListView: UIView {
             tableView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: totalLabel.topAnchor, constant: -8),
+            
+            totalLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            totalLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            totalLabel.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16),
         ])
     }
 }

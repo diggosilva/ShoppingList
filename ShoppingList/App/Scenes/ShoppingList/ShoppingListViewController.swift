@@ -32,7 +32,7 @@ class ShoppingListViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.title = "Lista de Compras"
+        navigationItem.title = "Lista de Compras 🛒"
     }
     
     private func configureDelegatesAndDataSources() {
@@ -43,7 +43,13 @@ class ShoppingListViewController: UIViewController {
     private func binding() {
         viewModel.onDataChanged = { [weak self] in
             self?.shoppingListView.tableView.reloadData()
+            self?.updateTotal()
         }
+    }
+    
+    private func updateTotal() {
+        let total = viewModel.totalValue()
+        shoppingListView.totalLabel.text = "Total: \(formatCurrency(value: total))"
     }
 }
 
@@ -53,10 +59,12 @@ extension ShoppingListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ShoppingListCell.identififer, for: indexPath) as? ShoppingListCell else { return UITableViewCell() }
         let item = viewModel.itemForRow(at: indexPath.row)
-        
-        cell.textLabel?.text = "\(item.name) - \(item.quantity)x"
+        cell.configure(item: item)
+        cell.onQuantityChanged = { [weak self] newQuantity in
+            self?.viewModel.updateQuantity(itemID: item.id, quantity: newQuantity)
+        }
         return cell
     }
 }
