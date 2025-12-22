@@ -56,7 +56,7 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
     }
     
     func addItem(_ item: MarketItem) {
-        marketItems.append(item)
+        marketItems.insert(item, at: 0)
         repository.saveItems(marketItems)
         onDataChanged?()
     }
