@@ -43,6 +43,7 @@ class ShoppingListViewController: UIViewController {
     
     private func binding() {
         viewModel.onDataChanged = { [weak self] in
+            self?.shoppingListView.tableView.reloadData()
             self?.updateTotal()
         }
     }
@@ -75,27 +76,44 @@ class ShoppingListViewController: UIViewController {
         }
         
         let addAction = UIAlertAction(title: "Adicionar", style: .default) { [weak self] _ in
-            guard let self = self,
-                  let name = alert.textFields?[0].text, !name.isEmpty,
-                  let priceText = alert.textFields?[1].text,
-                  let price = Double(priceText.replacingOccurrences(of: ",", with: ".")),
-                  let quantityText = alert.textFields?[2].text,
-                  let quantity = Int(quantityText) else { return }
-            
-            let item = MarketItem(name: name, unitPrice: price, quantity: quantity)
-
-            self.viewModel.addItem(item)
-            
-            let indexPath = IndexPath(row: 0, section: 0)
-            shoppingListView.tableView.performBatchUpdates {
-                self.shoppingListView.tableView.insertRows(at: [indexPath], with: .automatic)
-            }
-            self.updateTotal()
+            self?.handleAddItem(alert: alert)
         }
         
+        addAction.isEnabled = false
         alert.addAction(addAction)
         alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
+        alert.textFields?.forEach {
+            $0.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        }
         present(alert, animated: true)
+    }
+    
+    @objc private func textDidChange(sender: UITextField) {
+        guard let alert = presentedViewController as? UIAlertController,
+              let textFields = alert.textFields,
+              let addAction = alert.actions.first else { return }
+        
+        let name = textFields[0].text ?? ""
+        let priceText = textFields[1].text ?? ""
+        let quantityText = textFields[2].text ?? ""
+        
+        let price = Double(priceText.replacingOccurrences(of: ",", with: "."))
+        let quantity = Int(quantityText)
+        
+        let isValid = !name.isEmpty && price != nil && (quantity ?? 0) > 0
+        
+        addAction.isEnabled = isValid
+    }
+    
+    private func handleAddItem(alert: UIAlertController) {
+        guard let fileds = alert.textFields else { return }
+        
+        let name = fileds[0].text!
+        let price = Double(fileds[1].text!.replacingOccurrences(of: ",", with: "."))!
+        let quantity = Int(fileds[2].text!)!
+        
+        let item = MarketItem(name: name, unitPrice: price, quantity: quantity)
+        viewModel.addItem(item)
     }
 }
 
@@ -110,9 +128,6 @@ extension ShoppingListViewController: UITableViewDataSource {
         cell.configure(item: item)
         cell.onQuantityChanged = { [weak self] newQuantity in
             self?.viewModel.updateQuantity(itemID: item.id, quantity: newQuantity)
-            let indexPath = IndexPath(row: indexPath.row, section: 0)
-            self?.shoppingListView.tableView.reloadRows(at: [indexPath], with: .none)
-            self?.updateTotal()
         }
         return cell
     }
