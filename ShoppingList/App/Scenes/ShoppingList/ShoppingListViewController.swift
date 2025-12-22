@@ -43,7 +43,6 @@ class ShoppingListViewController: UIViewController {
     
     private func binding() {
         viewModel.onDataChanged = { [weak self] in
-            self?.shoppingListView.tableView.reloadData()
             self?.updateTotal()
         }
     }
@@ -86,6 +85,12 @@ class ShoppingListViewController: UIViewController {
             let item = MarketItem(name: name, unitPrice: price, quantity: quantity)
 
             self.viewModel.addItem(item)
+            
+            let newIndex = viewModel.numberOfRows() - 1
+            let indexPath = IndexPath(row: newIndex, section: 0)
+            shoppingListView.tableView.performBatchUpdates {
+                self.shoppingListView.tableView.insertRows(at: [indexPath], with: .automatic)
+            }
             self.updateTotal()
         }
         
@@ -106,6 +111,9 @@ extension ShoppingListViewController: UITableViewDataSource {
         cell.configure(item: item)
         cell.onQuantityChanged = { [weak self] newQuantity in
             self?.viewModel.updateQuantity(itemID: item.id, quantity: newQuantity)
+            let indexPath = IndexPath(row: indexPath.row, section: 0)
+            self?.shoppingListView.tableView.reloadRows(at: [indexPath], with: .none)
+            self?.updateTotal()
         }
         return cell
     }
