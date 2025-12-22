@@ -33,6 +33,7 @@ class ShoppingListViewController: UIViewController {
     
     private func configureNavigationBar() {
         navigationItem.title = "Lista de Compras 🛒"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItemTapped))
     }
     
     private func configureDelegatesAndDataSources() {
@@ -50,6 +51,47 @@ class ShoppingListViewController: UIViewController {
     private func updateTotal() {
         let total = viewModel.totalValue()
         shoppingListView.totalLabel.text = "Total: \(formatCurrency(value: total))"
+    }
+    
+    @objc private func addItemTapped() {
+        let alert = UIAlertController(title: "Novo Item", message: "Informe os dados do produto", preferredStyle: .alert)
+        
+        alert.addTextField {
+            $0.placeholder = "Nome do Produto"
+            $0.autocapitalizationType = .words
+            $0.clearButtonMode = .whileEditing
+        }
+        
+        alert.addTextField {
+            $0.placeholder = "Preço unitário"
+            $0.keyboardType = .decimalPad
+            $0.clearButtonMode = .whileEditing
+        }
+        
+        alert.addTextField {
+            $0.placeholder = "Quantidade"
+            $0.keyboardType = .numberPad
+            $0.text = "1"
+            $0.clearButtonMode = .whileEditing
+        }
+        
+        let addAction = UIAlertAction(title: "Adicionar", style: .default) { [weak self] _ in
+            guard let self = self,
+                  let name = alert.textFields?[0].text, !name.isEmpty,
+                  let priceText = alert.textFields?[1].text,
+                  let price = Double(priceText.replacingOccurrences(of: ",", with: ".")),
+                  let quantityText = alert.textFields?[2].text,
+                  let quantity = Int(quantityText) else { return }
+            
+            let item = MarketItem(name: name, unitPrice: price, quantity: quantity)
+
+            self.viewModel.addItem(item)
+            self.updateTotal()
+        }
+        
+        alert.addAction(addAction)
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
+        present(alert, animated: true)
     }
 }
 
