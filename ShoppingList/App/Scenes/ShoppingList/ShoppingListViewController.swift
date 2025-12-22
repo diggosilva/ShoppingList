@@ -86,8 +86,7 @@ class ShoppingListViewController: UIViewController {
 
             self.viewModel.addItem(item)
             
-            let newIndex = viewModel.numberOfRows() - 1
-            let indexPath = IndexPath(row: newIndex, section: 0)
+            let indexPath = IndexPath(row: 0, section: 0)
             shoppingListView.tableView.performBatchUpdates {
                 self.shoppingListView.tableView.insertRows(at: [indexPath], with: .automatic)
             }
