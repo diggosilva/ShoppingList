@@ -14,6 +14,7 @@ protocol ShoppingListViewModelProtocol: AnyObject {
     func numberOfRows() -> Int
     func itemForRow(at index: Int) -> MarketItem
     func updateQuantity(itemID: UUID, quantity: Int)
+    func updateItem(_ item: MarketItem)
     func addItem(_ item: MarketItem)
     func removeItem(at index: Int)
     func totalValue() -> Double
@@ -53,6 +54,13 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
             repository.saveItems(marketItems)
             onDataChanged?()
         }
+    }
+    
+    func updateItem(_ item: MarketItem) {
+        guard let index = marketItems.firstIndex(where: { $0.id == item.id }) else { return }
+        marketItems[index] = item
+        repository.saveItems(marketItems)
+        onDataChanged?()
     }
     
     func addItem(_ item: MarketItem) {
