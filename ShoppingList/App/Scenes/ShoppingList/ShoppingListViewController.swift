@@ -30,143 +30,9 @@ class ShoppingListViewController: UIViewController {
         binding()
         viewModel.loadItems()
     }
-    
-    private func configureNavigationBar() {
-        navigationItem.title = "Lista de Compras 🛒"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItemTapped))
-    }
-    
-    private func configureDelegatesAndDataSources() {
-        shoppingListView.tableView.dataSource = self
-        shoppingListView.tableView.delegate = self
-    }
-    
-    private func binding() {
-        viewModel.onDataChanged = { [weak self] in
-            self?.shoppingListView.tableView.reloadData()
-            self?.updateTotal()
-        }
-    }
-    
-    private func updateTotal() {
-        let total = viewModel.totalValue()
-        shoppingListView.totalLabel.text = "Total: \(formatCurrency(value: total))"
-    }
-    
-    @objc private func addItemTapped() {
-        let alert = UIAlertController(title: "Novo Item", message: "Informe os dados do produto", preferredStyle: .alert)
-        
-        alert.addTextField {
-            $0.placeholder = "Nome do Produto"
-            $0.autocapitalizationType = .words
-            $0.clearButtonMode = .whileEditing
-        }
-        
-        alert.addTextField {
-            $0.placeholder = "Preço unitário"
-            $0.keyboardType = .decimalPad
-            $0.clearButtonMode = .whileEditing
-        }
-        
-        alert.addTextField {
-            $0.placeholder = "Quantidade"
-            $0.keyboardType = .numberPad
-            $0.text = "1"
-            $0.clearButtonMode = .whileEditing
-        }
-        
-        let addAction = UIAlertAction(title: "Adicionar", style: .default) { [weak self] _ in
-            self?.handleAddItem(alert: alert)
-        }
-        
-        addAction.isEnabled = false
-        alert.addAction(addAction)
-        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
-        alert.textFields?.forEach {
-            $0.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        }
-        present(alert, animated: true)
-    }
-    
-    @objc private func textDidChange(sender: UITextField) {
-        guard let alert = presentedViewController as? UIAlertController,
-              let textFields = alert.textFields,
-              let addAction = alert.actions.first else { return }
-        
-        let name = textFields[0].text ?? ""
-        let priceText = textFields[1].text ?? ""
-        let quantityText = textFields[2].text ?? ""
-        
-        let price = Double(priceText.replacingOccurrences(of: ",", with: "."))
-        let quantity = Int(quantityText)
-        
-        let isValid = !name.isEmpty && price != nil && (quantity ?? 0) > 0
-        
-        addAction.isEnabled = isValid
-    }
-    
-    private func makeItemFromAlert(_ alert: UIAlertController, existingID: UUID? = nil) -> MarketItem? {
-        guard let fields = alert.textFields,
-                let name = fields[0].text, !name.isEmpty,
-                let priceText = fields[1].text,
-                let price = Double(priceText.replacingOccurrences(of: ",", with: ".")),
-                let quantityText = fields[2].text,
-                let quantity = Int(quantityText),
-                quantity > 0
-          else { return nil }
-        
-        if let id = existingID {
-            return MarketItem(id: id, name: name, unitPrice: price, quantity: quantity)
-        } else {
-            return MarketItem(name: name, unitPrice: price, quantity: quantity)
-        }
-    }
-    
-    private func handleAddItem(alert: UIAlertController) {
-        guard let item = makeItemFromAlert(alert) else { return }
-        viewModel.addItem(item)
-    }
-    
-    private func showEditAlert(for item: MarketItem, at indexPath: IndexPath) {
-        let alert = UIAlertController(title: "Editar Item", message: nil, preferredStyle: .alert)
-
-        alert.addTextField {
-            $0.text = item.name
-            $0.clearButtonMode = .whileEditing
-        }
-
-        alert.addTextField {
-            $0.text = String(item.unitPrice)
-            $0.keyboardType = .decimalPad
-            $0.clearButtonMode = .whileEditing
-        }
-
-        alert.addTextField {
-            $0.text = String(item.quantity)
-            $0.keyboardType = .numberPad
-            $0.clearButtonMode = .whileEditing
-        }
-
-        let saveAction = UIAlertAction(title: "Salvar", style: .default) { [weak self] _ in
-            guard let self = self,
-                  let updatedItem = self.makeItemFromAlert(alert, existingID: item.id) else { return }
-            
-            self.viewModel.updateItem(updatedItem)
-            self.shoppingListView.tableView.reloadRows(at: [indexPath], with: .automatic)
-            self.updateTotal()
-        }
-
-        saveAction.isEnabled = true // começa válido porque vem preenchido
-
-        alert.addAction(saveAction)
-        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
-        alert.textFields?.forEach {
-            $0.addTarget(self, action: #selector(self.textDidChange), for: .editingChanged)
-        }
-        present(alert, animated: true)
-    }
 }
 
+// MARK: - TableView
 extension ShoppingListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfRows()
@@ -201,7 +67,6 @@ extension ShoppingListViewController: UITableViewDelegate {
         
         deleteAction.backgroundColor = .systemRed
         deleteAction.image = UIImage(systemName: "trash")
-        
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
     
@@ -219,7 +84,133 @@ extension ShoppingListViewController: UITableViewDelegate {
         
         editAction.backgroundColor = .systemBlue
         editAction.image = UIImage(systemName: "pencil")
-        
         return UISwipeActionsConfiguration(actions: [editAction])
+    }
+}
+
+// MARK: - Setup
+extension ShoppingListViewController {
+    private func configureNavigationBar() {
+        navigationItem.title = "Lista de Compras 🛒"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItemTapped))
+    }
+    
+    private func configureDelegatesAndDataSources() {
+        shoppingListView.tableView.dataSource = self
+        shoppingListView.tableView.delegate = self
+    }
+    
+    private func binding() {
+        viewModel.onDataChanged = { [weak self] in
+            self?.shoppingListView.tableView.reloadData()
+            self?.updateTotal()
+        }
+    }
+    
+    private func updateTotal() {
+        let total = viewModel.totalValue()
+        shoppingListView.totalLabel.text = "Total: \(formatCurrency(value: total))"
+    }
+}
+
+// MARK: - Alerts
+extension ShoppingListViewController {
+    @objc private func addItemTapped() {
+        let alert = UIAlertController(title: "Novo Item", message: "Informe os dados do produto", preferredStyle: .alert)
+        alert.addTextField {
+            $0.placeholder = "Nome do Produto"
+            $0.autocapitalizationType = .words
+        }
+        
+        alert.addTextField {
+            $0.placeholder = "Preço unitário"
+            $0.keyboardType = .decimalPad
+        }
+        
+        alert.addTextField {
+            $0.placeholder = "Quantidade"
+            $0.keyboardType = .numberPad
+            $0.text = "1"
+        }
+        
+        let addAction = UIAlertAction(title: "Adicionar", style: .default) { [weak self] _ in
+            self?.handleAddItem(alert: alert)
+        }
+        addAction.isEnabled = false
+        
+        alert.addAction(addAction)
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
+        
+        alert.textFields?.forEach {
+            $0.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+            $0.clearButtonMode = .whileEditing
+        }
+        present(alert, animated: true)
+    }
+    
+    private func showEditAlert(for item: MarketItem, at indexPath: IndexPath) {
+        let alert = UIAlertController(title: "Editar Item", message: nil, preferredStyle: .alert)
+        
+        alert.addTextField { $0.text = item.name; $0.autocapitalizationType = .words }
+        alert.addTextField {
+            $0.text = String(item.unitPrice)
+            $0.keyboardType = .decimalPad
+        }
+        alert.addTextField {
+            $0.text = String(item.quantity)
+            $0.keyboardType = .numberPad
+        }
+        
+        let saveAction = UIAlertAction(title: "Salvar", style: .default) { [weak self] _ in
+            guard let self = self,
+                  let updatedItem = self.makeItemFromAlert(alert, existingID: item.id)
+            else { return }
+            
+            self.viewModel.updateItem(updatedItem)
+            self.shoppingListView.tableView.reloadRows(at: [indexPath], with: .automatic)
+            self.updateTotal()
+        }
+        
+        saveAction.isEnabled = true
+        
+        alert.addAction(saveAction)
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
+        
+        alert.textFields?.forEach {
+            $0.addTarget(self, action: #selector(self.textDidChange), for: .editingChanged)
+            $0.clearButtonMode = .whileEditing
+        }
+        present(alert, animated: true)
+    }
+    
+    @objc private func textDidChange(_ sender: UITextField) {
+        guard let alert = presentedViewController as? UIAlertController,
+              let fields = alert.textFields,
+              let mainAction = alert.actions.first else { return }
+        
+        let name = fields[0].text ?? ""
+        let price = Double(fields[1].text?.replacingOccurrences(of: ",", with: ".") ?? "")
+        let quantity = Int(fields[2].text ?? "")
+        
+        mainAction.isEnabled = !name.isEmpty && price != nil && (quantity ?? 0) > 0
+    }
+    
+    private func makeItemFromAlert(_ alert: UIAlertController, existingID: UUID? = nil) -> MarketItem? {
+        guard let fields = alert.textFields,
+              let name = fields[0].text, !name.isEmpty,
+              let price = Double(fields[1].text!.replacingOccurrences(of: ",", with: ".")),
+              let quantity = Int(fields[2].text!),
+              quantity > 0 else { return nil }
+        
+        if let id = existingID {
+            return MarketItem(id: id, name: name, unitPrice: price, quantity: quantity)
+        } else {
+            return MarketItem(name: name, unitPrice: price, quantity: quantity)
+        }
+    }
+    
+    private func handleAddItem(alert: UIAlertController) {
+        guard let item = makeItemFromAlert(alert) else { return }
+        viewModel.addItem(item)
     }
 }
