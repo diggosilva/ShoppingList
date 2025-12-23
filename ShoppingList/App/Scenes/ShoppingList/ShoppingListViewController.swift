@@ -105,15 +105,65 @@ class ShoppingListViewController: UIViewController {
         addAction.isEnabled = isValid
     }
     
+    private func makeItemFromAlert(_ alert: UIAlertController, existingID: UUID? = nil) -> MarketItem? {
+        guard let fields = alert.textFields,
+                let name = fields[0].text, !name.isEmpty,
+                let priceText = fields[1].text,
+                let price = Double(priceText.replacingOccurrences(of: ",", with: ".")),
+                let quantityText = fields[2].text,
+                let quantity = Int(quantityText),
+                quantity > 0
+          else { return nil }
+        
+        if let id = existingID {
+            return MarketItem(id: id, name: name, unitPrice: price, quantity: quantity)
+        } else {
+            return MarketItem(name: name, unitPrice: price, quantity: quantity)
+        }
+    }
+    
     private func handleAddItem(alert: UIAlertController) {
-        guard let fields = alert.textFields else { return }
-        
-        let name = fields[0].text!
-        let price = Double(fields[1].text!.replacingOccurrences(of: ",", with: "."))!
-        let quantity = Int(fields[2].text!)!
-        
-        let item = MarketItem(name: name, unitPrice: price, quantity: quantity)
+        guard let item = makeItemFromAlert(alert) else { return }
         viewModel.addItem(item)
+    }
+    
+    private func showEditAlert(for item: MarketItem, at indexPath: IndexPath) {
+        let alert = UIAlertController(title: "Editar Item", message: nil, preferredStyle: .alert)
+
+        alert.addTextField {
+            $0.text = item.name
+            $0.clearButtonMode = .whileEditing
+        }
+
+        alert.addTextField {
+            $0.text = String(item.unitPrice)
+            $0.keyboardType = .decimalPad
+            $0.clearButtonMode = .whileEditing
+        }
+
+        alert.addTextField {
+            $0.text = String(item.quantity)
+            $0.keyboardType = .numberPad
+            $0.clearButtonMode = .whileEditing
+        }
+
+        let saveAction = UIAlertAction(title: "Salvar", style: .default) { [weak self] _ in
+            guard let self = self,
+                  let updatedItem = self.makeItemFromAlert(alert, existingID: item.id) else { return }
+            
+            self.viewModel.updateItem(updatedItem)
+            self.shoppingListView.tableView.reloadRows(at: [indexPath], with: .automatic)
+            self.updateTotal()
+        }
+
+        saveAction.isEnabled = true // começa válido porque vem preenchido
+
+        alert.addAction(saveAction)
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
+        alert.textFields?.forEach {
+            $0.addTarget(self, action: #selector(self.textDidChange), for: .editingChanged)
+        }
+        present(alert, animated: true)
     }
 }
 
@@ -140,10 +190,36 @@ extension ShoppingListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Apagar") { [weak self] _, _, completion in
-            self?.viewModel.removeItem(at: indexPath.row)
+            guard let self = self else {
+                completion(false)
+                return
+            }
+            
+            self.viewModel.removeItem(at: indexPath.row)
             completion(true)
         }
+        
         deleteAction.backgroundColor = .systemRed
+        deleteAction.image = UIImage(systemName: "trash")
+        
         return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+    
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let editAction = UIContextualAction(style: .normal, title: "Editar") { [weak self] _, _, completion in
+            guard let self = self else {
+                completion(false)
+                return
+            }
+            
+            let item = self.viewModel.itemForRow(at: indexPath.row)
+            self.showEditAlert(for: item, at: indexPath)
+            completion(true)
+        }
+        
+        editAction.backgroundColor = .systemBlue
+        editAction.image = UIImage(systemName: "pencil")
+        
+        return UISwipeActionsConfiguration(actions: [editAction])
     }
 }
