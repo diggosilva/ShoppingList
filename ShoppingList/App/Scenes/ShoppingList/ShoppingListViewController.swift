@@ -106,11 +106,11 @@ class ShoppingListViewController: UIViewController {
     }
     
     private func handleAddItem(alert: UIAlertController) {
-        guard let fileds = alert.textFields else { return }
+        guard let fields = alert.textFields else { return }
         
-        let name = fileds[0].text!
-        let price = Double(fileds[1].text!.replacingOccurrences(of: ",", with: "."))!
-        let quantity = Int(fileds[2].text!)!
+        let name = fields[0].text!
+        let price = Double(fields[1].text!.replacingOccurrences(of: ",", with: "."))!
+        let quantity = Int(fields[2].text!)!
         
         let item = MarketItem(name: name, unitPrice: price, quantity: quantity)
         viewModel.addItem(item)
@@ -136,5 +136,14 @@ extension ShoppingListViewController: UITableViewDataSource {
 extension ShoppingListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Apagar") { [weak self] _, _, completion in
+            self?.viewModel.removeItem(at: indexPath.row)
+            completion(true)
+        }
+        deleteAction.backgroundColor = .systemRed
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }
