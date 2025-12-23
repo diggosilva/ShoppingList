@@ -17,8 +17,17 @@ struct MarketItem: Codable {
         return unitPrice * Double(quantity)
     }
     
+    // Init para item NOVO
     init(name: String, unitPrice: Double, quantity: Int) {
         id = UUID()
+        self.name = name
+        self.unitPrice = unitPrice
+        self.quantity = quantity
+    }
+    
+    // Init para item EXISTENTE (edição)
+    init(id: UUID, name: String, unitPrice: Double, quantity: Int) {
+        self.id = id
         self.name = name
         self.unitPrice = unitPrice
         self.quantity = quantity
