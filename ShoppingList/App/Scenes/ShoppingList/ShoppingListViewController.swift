@@ -110,6 +110,8 @@ extension ShoppingListViewController {
     private func updateTotal() {
         let total = viewModel.totalValue()
         shoppingListView.totalLabel.text = "Total: \(formatCurrency(value: total))"
+        shoppingListView.itemsLabel.text = viewModel.totalItems > 1 ? "\(viewModel.totalItems) itens" : "\(viewModel.totalItems) item"
+        shoppingListView.quantityLabel.text = viewModel.totalQuantity > 1 ? "\(viewModel.totalQuantity) unidades" : "\(viewModel.totalQuantity) unidade"
     }
 }
 
