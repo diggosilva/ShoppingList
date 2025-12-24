@@ -9,6 +9,9 @@ import Foundation
 
 protocol ShoppingListViewModelProtocol: AnyObject {
     var onDataChanged: (() -> Void)? { get set }
+    var totalPurchaseValue: Double { get }
+    var totalItems: Int { get }
+    var totalQuantity: Int { get }
     
     func loadItems()
     func numberOfRows() -> Int
@@ -26,6 +29,18 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
     private let repository: RepositoryProtocol
     
     var onDataChanged: (() -> Void)?
+    
+    var totalPurchaseValue: Double {
+        return marketItems.reduce(0) { $0 + $1.totalValue }
+    }
+    
+    var totalItems: Int {
+        return marketItems.count
+    }
+    
+    var totalQuantity: Int {
+        return marketItems.reduce(0) { $0 + $1.quantity }
+    }
     
     init(repository: RepositoryProtocol = Repository()) {
         self.repository = repository
