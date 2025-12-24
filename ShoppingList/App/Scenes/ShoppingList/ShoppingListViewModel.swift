@@ -21,12 +21,13 @@ protocol ShoppingListViewModelProtocol: AnyObject {
     func addItem(_ item: MarketItem)
     func removeItem(at index: Int)
     func totalValue() -> Double
+    func finalizePurchase() -> Purchase
 }
 
 final class ShoppingListViewModel: ShoppingListViewModelProtocol {
     
     private var marketItems: [MarketItem] = []
-    private let repository: RepositoryProtocol
+    private let repository: MarketItemRepositoryProtocol
     
     var onDataChanged: (() -> Void)?
     
@@ -42,7 +43,7 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
         return marketItems.reduce(0) { $0 + $1.quantity }
     }
     
-    init(repository: RepositoryProtocol = Repository()) {
+    init(repository: MarketItemRepositoryProtocol = MarketItemRepository()) {
         self.repository = repository
         loadItems()
     }
@@ -95,5 +96,16 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
         return marketItems.reduce(0) { total, item in
             total + (item.unitPrice * Double(item.quantity))
         }
+    }
+    
+    func finalizePurchase() -> Purchase {
+        return Purchase(
+            id: UUID(),
+            date: Date(),
+            item: marketItems,
+            totalValue: totalPurchaseValue,
+            totalItems: totalItems,
+            totalQuantity: totalQuantity
+        )
     }
 }
