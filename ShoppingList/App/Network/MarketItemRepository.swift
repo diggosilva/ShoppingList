@@ -1,5 +1,5 @@
 //
-//  Repository.swift
+//  MarketItemRepository.swift
 //  ShoppingList
 //
 //  Created by Diggo Silva on 18/12/25.
@@ -7,12 +7,12 @@
 
 import Foundation
 
-protocol RepositoryProtocol: AnyObject {
+protocol MarketItemRepositoryProtocol: AnyObject {
     func loadItems() -> [MarketItem]
     func saveItems(_ items: [MarketItem])
 }
 
-final class Repository: RepositoryProtocol {
+final class MarketItemRepository: MarketItemRepositoryProtocol {
     
     private let userDefaults = UserDefaults.standard
     private let keyMarket = "keyMarket"
