@@ -22,6 +22,7 @@ protocol ShoppingListViewModelProtocol: AnyObject {
     func removeItem(at index: Int)
     func totalValue() -> Double
     func finalizePurchase() -> Purchase
+    func clearItems()
 }
 
 final class ShoppingListViewModel: ShoppingListViewModelProtocol {
@@ -107,5 +108,11 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
             totalItems: totalItems,
             totalQuantity: totalQuantity
         )
+    }
+    
+    func clearItems() {
+        marketItems.removeAll()
+        repository.saveItems([])
+        onDataChanged?()
     }
 }

@@ -30,6 +30,7 @@ final class PurchaseHistoryView: UIView {
     
     private func setHierarchy() {
         addSubviews(tableView)
+        backgroundColor = .systemBackground
     }
     
     private func setConstraints() {

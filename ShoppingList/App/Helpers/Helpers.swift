@@ -20,6 +20,12 @@ func formatCurrency(value: Double) -> String {
     return formatter.string(from: NSNumber(floatLiteral: value)) ?? "R$ 0,00"
 }
 
+func formatDate(_ date: Date) -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "dd/MM/yyyy - HH:mm:ss"
+    return dateFormatter.string(from: date)
+}
+
 func buildLabel(font: UIFont, numberOfLines: Int = 1, text: String = "", textColor: UIColor = .label, textAlignment: NSTextAlignment = .natural) -> UILabel {
     let label = UILabel()
     label.translatesAutoresizingMaskIntoConstraints = false
