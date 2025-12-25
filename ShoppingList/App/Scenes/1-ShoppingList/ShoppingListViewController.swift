@@ -92,7 +92,16 @@ extension ShoppingListViewController: UITableViewDelegate {
 extension ShoppingListViewController {
     private func configureNavigationBar() {
         navigationItem.title = "Lista de Compras 🛒"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItemTapped))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: UIImage(systemName: "clock"), style: .plain, target: self, action: #selector(openHistory)),
+            UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(finishPurchase)),
+            UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItemTapped)),
+        ]
+    }
+    
+    @objc private func openHistory() {
+        let purchaseVC = PurchaseHistoryViewController()
+        navigationController?.pushViewController(purchaseVC, animated: true)
     }
     
     private func configureDelegatesAndDataSources() {
@@ -117,6 +126,45 @@ extension ShoppingListViewController {
 
 // MARK: - Alerts
 extension ShoppingListViewController {
+    @objc private func finishPurchase() {
+        let alert = UIAlertController(title: "Finalizar Compra", message: "Deseja realmente finalizar a compra?", preferredStyle: .alert)
+        let ok = UIAlertAction(title: "Ok", style: .default) { action in
+            self.hasItemsToPurchase()
+        }
+        
+        alert.addAction(ok)
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: nil))
+        present(alert, animated: true)
+    }
+    
+    private func hasItemsToPurchase() {
+        if viewModel.numberOfRows() == 0 {
+            showAlertPurchaseEmpty()
+        } else {
+            let purchase = self.viewModel.finalizePurchase()
+            let historyRepository = PurchaseRepository()
+            
+            var history = historyRepository.loadPurchases()
+            history.append(purchase)
+            historyRepository.savePurchases(history)
+            
+            self.viewModel.clearItems()
+            self.showAlertPurchaseSaved()
+        }
+    }
+    
+    private func showAlertPurchaseEmpty() {
+        let alert = UIAlertController(title: "Carrinho vazio ❌", message: "Seu carrinho está vazio. Adicione itens para finalizar.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true)
+    }
+    
+    private func showAlertPurchaseSaved() {
+        let alert = UIAlertController(title: "Compra salva ✅", message: "Sua compra foi adicionada ao histórico.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true)
+    }
+    
     @objc private func addItemTapped() {
         let alert = UIAlertController(title: "Novo Item", message: "Informe os dados do produto", preferredStyle: .alert)
         alert.addTextField {
