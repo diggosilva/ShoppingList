@@ -10,9 +10,23 @@ import Foundation
 struct Purchase: Codable {
     let id: UUID
     let date: Date
-    let item: [MarketItem]
+    let items: [MarketItem]
     
-    let totalValue: Double
-    let totalItems: Int
-    let totalQuantity: Int
+    var totalValue: Double {
+        return items.reduce(0) { $0 + $1.totalValue }
+    }
+    
+    var totalItems: Int {
+        return items.count
+    }
+    
+    var totalQuantity: Int {
+        items.reduce(0) { $0 + $1.quantity }
+    }
+    
+    init(items: [MarketItem]) {
+        self.id = UUID()
+        self.date = Date()
+        self.items = items
+    }
 }

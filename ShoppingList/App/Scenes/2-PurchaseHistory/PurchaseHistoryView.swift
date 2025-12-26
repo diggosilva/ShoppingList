@@ -12,7 +12,7 @@ final class PurchaseHistoryView: UIView {
     lazy var tableView: UITableView = {
         let tv = UITableView(frame: .zero, style: .insetGrouped)
         tv.translatesAutoresizingMaskIntoConstraints = false
-        tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tv.register(PurchaseHistoryCell.self, forCellReuseIdentifier: PurchaseHistoryCell.identifier)
         return tv
     }()
     
