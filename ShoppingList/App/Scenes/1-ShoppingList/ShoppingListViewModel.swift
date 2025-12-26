@@ -20,7 +20,6 @@ protocol ShoppingListViewModelProtocol: AnyObject {
     func updateItem(_ item: MarketItem)
     func addItem(_ item: MarketItem)
     func removeItem(at index: Int)
-    func totalValue() -> Double
     func finalizePurchase() -> Purchase
     func clearItems()
 }
@@ -65,8 +64,7 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
     func updateQuantity(itemID: UUID, quantity: Int) {
         if let index = marketItems.firstIndex(where: { $0.id == itemID }) {
             let oldItem = marketItems[index]
-            let updatedItem = MarketItem(name: oldItem.name, unitPrice: oldItem.unitPrice, quantity: quantity)
-            
+            let updatedItem = MarketItem(id: oldItem.id, name: oldItem.name, unitPrice: oldItem.unitPrice, quantity: quantity)
             marketItems[index] = updatedItem
             repository.saveItems(marketItems)
             onDataChanged?()
@@ -93,21 +91,8 @@ final class ShoppingListViewModel: ShoppingListViewModelProtocol {
         onDataChanged?()
     }
     
-    func totalValue() -> Double {
-        return marketItems.reduce(0) { total, item in
-            total + (item.unitPrice * Double(item.quantity))
-        }
-    }
-    
     func finalizePurchase() -> Purchase {
-        return Purchase(
-            id: UUID(),
-            date: Date(),
-            item: marketItems,
-            totalValue: totalPurchaseValue,
-            totalItems: totalItems,
-            totalQuantity: totalQuantity
-        )
+        return Purchase(items: marketItems)
     }
     
     func clearItems() {
