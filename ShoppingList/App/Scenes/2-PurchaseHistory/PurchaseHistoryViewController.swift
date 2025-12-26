@@ -46,17 +46,10 @@ extension PurchaseHistoryViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: PurchaseHistoryCell.identifier, for: indexPath) as? PurchaseHistoryCell else { return UITableViewCell() }
         
         let purchase = viewModel.purchaseForRow(at: indexPath.row)
-        
-        var content = cell.defaultContentConfiguration()
-        content.text = "Compra em realizada em: "
-        content.secondaryText = "\(formatDate(purchase.date))\n Total: \(formatCurrency(value: purchase.totalValue))"
-        content.image = UIImage(systemName: "cart.fill")?.withTintColor(.systemGreen, renderingMode: .alwaysOriginal)
-        
-        cell.contentConfiguration = content
-        cell.accessoryType = .disclosureIndicator
+        cell.configure(with: purchase)
         return cell
     }
 }
