@@ -57,5 +57,10 @@ extension PurchaseHistoryViewController: UITableViewDataSource {
 extension PurchaseHistoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        let purchase = viewModel.purchaseForRow(at: indexPath.row)
+        let viewModel = PurchaseDetailsViewModel(purchase: purchase)
+        let purchaseDetailsVC = PurchaseDetailsViewController(viewModel: viewModel)
+        navigationController?.pushViewController(purchaseDetailsVC, animated: true)
     }
 }
