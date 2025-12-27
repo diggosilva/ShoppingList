@@ -26,39 +26,34 @@ class PurchaseDetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
-        configureDelegatesAndDataSources()
+        configureDataSource()
+        updateTotal()
     }
     
     private func configureNavigationBar() {
         navigationItem.title = "Detalhes da Compra"
     }
     
-    private func configureDelegatesAndDataSources() {
+    private func configureDataSource() {
         purchaseDetailsView.tableView.dataSource = self
-        purchaseDetailsView.tableView.delegate = self
-        purchaseDetailsView.tableView.reloadData()
+    }
+    
+    private func updateTotal() {
+        purchaseDetailsView.totalLabel.text = "TOTAL: \(formatCurrency(value: viewModel.totalValue))"
+        purchaseDetailsView.totalItemsLabel.text = "Itens: \(viewModel.totalItems)"
+        purchaseDetailsView.totalUnitLabel.text = "Unidades: \(viewModel.totalQuantity)"
     }
 }
 
 extension PurchaseDetailsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.totalItems
+        return viewModel.numberOfRows()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        
-        var content = cell.defaultContentConfiguration()
-        content.text = viewModel.itemForRow(at: indexPath.row).name
-        content.image = UIImage(systemName: "cart")
-        
-        cell.contentConfiguration = content
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: PurchaseItemCell.identifier, for: indexPath) as? PurchaseItemCell else { return UITableViewCell() }
+        let item = viewModel.itemForRow(at: indexPath.row)
+        cell.configure(item: item)
         return cell
-    }
-}
-
-extension PurchaseDetailsViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
