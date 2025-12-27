@@ -14,6 +14,7 @@ final class PurchaseDetailsView: UIView {
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.register(PurchaseItemCell.self, forCellReuseIdentifier: PurchaseItemCell.identifier)
         tv.allowsSelection = false
+        tv.separatorStyle = .none
         return tv
     }()
     
