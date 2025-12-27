@@ -14,6 +14,8 @@ protocol PurchaseDetailsViewModelProtocol: AnyObject {
     
     func numberOfRows() -> Int
     func itemForRow(at index: Int) -> MarketItem
+    
+    func exportText() -> String
 }
 
 final class PurchaseDetailsViewModel: PurchaseDetailsViewModelProtocol {
@@ -42,5 +44,27 @@ final class PurchaseDetailsViewModel: PurchaseDetailsViewModelProtocol {
     
     func itemForRow(at index: Int) -> MarketItem {
         return purchase.items[index]
+    }
+    
+    func exportText() -> String {
+        var lines: [String] = []
+        
+        lines.append("*DETALHES DA COMPRA*")
+        lines.append(formatDate(purchase.date))
+        lines.append("")
+        
+        for item in purchase.items {
+            let line = """
+                \(item.name)
+                \(formatCurrency(value: item.unitPrice)) x \(item.quantity) = *\(formatCurrency(value: item.totalValue))*
+                """
+            lines.append(line)
+            lines.append("")
+        }
+        lines.append("*_TOTAL_: \(formatCurrency(value: purchase.totalValue))*")
+        lines.append("_Itens_: \(purchase.totalItems)")
+        lines.append("_Unidades_: \(purchase.totalQuantity)")
+        
+        return lines.joined(separator: "\n")
     }
 }
