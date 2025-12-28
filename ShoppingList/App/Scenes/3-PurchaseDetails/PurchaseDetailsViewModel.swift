@@ -14,6 +14,10 @@ protocol PurchaseDetailsViewModelProtocol: AnyObject {
     
     func numberOfRows() -> Int
     func itemForRow(at index: Int) -> MarketItem
+
+    func filterItems(with text: String)
+    func currentSearchText() -> String
+    func resetFilter()
     
     func exportText() -> String
 }
@@ -21,29 +25,50 @@ protocol PurchaseDetailsViewModelProtocol: AnyObject {
 final class PurchaseDetailsViewModel: PurchaseDetailsViewModelProtocol {
         
     private let purchase: Purchase
+    private var filteredItems: [MarketItem] = []
+    private var isFiltering = false
+    private var searchText: String = ""
     
-    var totalValue: Double {
-        return purchase.totalValue
-    }
-    
-    var totalItems: Int {
-        return purchase.totalItems
-    }
-    
-    var totalQuantity: Int {
-        return purchase.totalQuantity
-    }
+    var totalValue: Double { return purchase.totalValue }
+    var totalItems: Int { return purchase.totalItems }
+    var totalQuantity: Int { return purchase.totalQuantity }
     
     init(purchase: Purchase) {
         self.purchase = purchase
     }
     
     func numberOfRows() -> Int {
-        return purchase.items.count
+        return isFiltering ? filteredItems.count : purchase.items.count
     }
     
     func itemForRow(at index: Int) -> MarketItem {
-        return purchase.items[index]
+        return isFiltering ? filteredItems[index] : purchase.items[index]
+    }
+    
+    func filterItems(with text: String) {
+        searchText = text
+        
+        guard !text.isEmpty else {
+            resetFilter()
+            return
+        }
+        
+        isFiltering = true
+        filteredItems = purchase.items.filter {
+            $0.name.lowercased().contains(text.lowercased()) ||
+            $0.unitPrice.description.lowercased().contains(text.lowercased()) ||
+            $0.quantity.description.lowercased().contains(text.lowercased())
+        }
+    }
+    
+    func currentSearchText() -> String {
+        return searchText
+    }
+    
+    func resetFilter() {
+        isFiltering = false
+        filteredItems = []
+        searchText = ""
     }
     
     func exportText() -> String {
