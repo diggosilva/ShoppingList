@@ -26,6 +26,7 @@ class PurchaseDetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
+        configureSearchController()
         configureDataSource()
         updateTotal()
     }
@@ -40,7 +41,8 @@ extension PurchaseDetailsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: PurchaseItemCell.identifier, for: indexPath) as? PurchaseItemCell else { return UITableViewCell() }
         let item = viewModel.itemForRow(at: indexPath.row)
-        cell.configure(item: item)
+        let searchText = viewModel.currentSearchText()
+        cell.configure(item: item, highlight: searchText)
         cell.backgroundColor = backgroundColor(for: indexPath)
         return cell
     }
@@ -71,5 +73,37 @@ extension PurchaseDetailsViewController {
         purchaseDetailsView.totalLabel.text = "TOTAL: \(formatCurrency(value: viewModel.totalValue))"
         purchaseDetailsView.totalItemsLabel.text = "Itens: \(viewModel.totalItems)"
         purchaseDetailsView.totalUnitLabel.text = "Unidades: \(viewModel.totalQuantity)"
+    }
+}
+
+//MARK: SearchController
+extension PurchaseDetailsViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let text = searchController.searchBar.text ?? ""
+        
+        if text.isEmpty {
+            viewModel.resetFilter()
+        } else {
+            viewModel.filterItems(with: text)
+        }
+        purchaseDetailsView.tableView.reloadData()
+    }
+    
+    private func configureSearchController() {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.delegate = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Buscar um item..."
+        
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+    }
+}
+
+extension PurchaseDetailsViewController: UISearchControllerDelegate {
+    func didDismissSearchController(_ searchController: UISearchController) {
+        viewModel.resetFilter()
+        purchaseDetailsView.tableView.reloadData()
     }
 }
