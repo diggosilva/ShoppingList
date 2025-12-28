@@ -56,6 +56,25 @@ func buildStepper(minValue: Int, maxValue: Int, target: Any, action: Selector) -
     return stepper
 }
 
+func highlightedText(fullText: String, highlight: String) -> NSAttributedString {
+    let attributed = NSMutableAttributedString(string: fullText)
+
+    guard !highlight.isEmpty else {
+        return attributed
+    }
+
+    let range = (fullText.lowercased() as NSString)
+        .range(of: highlight.lowercased())
+
+    if range.location != NSNotFound {
+        attributed.addAttributes([
+            .backgroundColor: UIColor.systemYellow.withAlphaComponent(0.4),
+            .font: UIFont.preferredFont(forTextStyle: .headline)
+        ], range: range)
+    }
+    return attributed
+}
+
 //MARK: Extensions
 extension UIView {
     func addSubviews(_ views: UIView...) {
