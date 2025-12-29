@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		927173632F0154C100138A48 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 92AB22CD2EF2E0D200B3F80E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 92AB22D42EF2E0D200B3F80E;
+			remoteInfo = ShoppingList;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		9271735F2F0154C100138A48 /* ShoppingListTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShoppingListTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		92AB22D52EF2E0D200B3F80E /* ShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -21,6 +32,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		927173602F0154C100138A48 /* ShoppingListTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ShoppingListTests;
+			sourceTree = "<group>";
+		};
 		92AB22D72EF2E0D200B3F80E /* ShoppingList */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -32,6 +48,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9271735C2F0154C100138A48 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		92AB22D22EF2E0D200B3F80E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -46,6 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				92AB22D72EF2E0D200B3F80E /* ShoppingList */,
+				927173602F0154C100138A48 /* ShoppingListTests */,
 				92AB22D62EF2E0D200B3F80E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				92AB22D52EF2E0D200B3F80E /* ShoppingList.app */,
+				9271735F2F0154C100138A48 /* ShoppingListTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +86,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9271735E2F0154C100138A48 /* ShoppingListTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 927173672F0154C100138A48 /* Build configuration list for PBXNativeTarget "ShoppingListTests" */;
+			buildPhases = (
+				9271735B2F0154C100138A48 /* Sources */,
+				9271735C2F0154C100138A48 /* Frameworks */,
+				9271735D2F0154C100138A48 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				927173642F0154C100138A48 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				927173602F0154C100138A48 /* ShoppingListTests */,
+			);
+			name = ShoppingListTests;
+			packageProductDependencies = (
+			);
+			productName = ShoppingListTests;
+			productReference = 9271735F2F0154C100138A48 /* ShoppingListTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		92AB22D42EF2E0D200B3F80E /* ShoppingList */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 92AB22E82EF2E0D300B3F80E /* Build configuration list for PBXNativeTarget "ShoppingList" */;
@@ -93,6 +141,10 @@
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					9271735E2F0154C100138A48 = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = 92AB22D42EF2E0D200B3F80E;
+					};
 					92AB22D42EF2E0D200B3F80E = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
@@ -113,11 +165,19 @@
 			projectRoot = "";
 			targets = (
 				92AB22D42EF2E0D200B3F80E /* ShoppingList */,
+				9271735E2F0154C100138A48 /* ShoppingListTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9271735D2F0154C100138A48 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		92AB22D32EF2E0D200B3F80E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +188,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9271735B2F0154C100138A48 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		92AB22D12EF2E0D200B3F80E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -137,7 +204,57 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		927173642F0154C100138A48 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 92AB22D42EF2E0D200B3F80E /* ShoppingList */;
+			targetProxy = 927173632F0154C100138A48 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		927173652F0154C100138A48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 57HYQW6DAG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diggosilva.ShoppingListTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShoppingList.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ShoppingList";
+			};
+			name = Debug;
+		};
+		927173662F0154C100138A48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 57HYQW6DAG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diggosilva.ShoppingListTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShoppingList.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ShoppingList";
+			};
+			name = Release;
+		};
 		92AB22E92EF2E0D300B3F80E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -322,6 +439,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		927173672F0154C100138A48 /* Build configuration list for PBXNativeTarget "ShoppingListTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				927173652F0154C100138A48 /* Debug */,
+				927173662F0154C100138A48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		92AB22D02EF2E0D200B3F80E /* Build configuration list for PBXProject "ShoppingList" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
