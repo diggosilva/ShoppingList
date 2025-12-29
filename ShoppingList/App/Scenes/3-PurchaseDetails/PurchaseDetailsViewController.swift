@@ -80,19 +80,15 @@ extension PurchaseDetailsViewController {
 extension PurchaseDetailsViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let text = searchController.searchBar.text ?? ""
+        text.isEmpty ? viewModel.resetFilter() : viewModel.filterItems(with: text)
         
-        if text.isEmpty {
-            viewModel.resetFilter()
-        } else {
-            viewModel.filterItems(with: text)
-        }
         purchaseDetailsView.tableView.reloadData()
     }
     
     private func configureSearchController() {
         let searchController = UISearchController(searchResultsController: nil)
-        searchController.searchResultsUpdater = self
         searchController.delegate = self
+        searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Buscar um item..."
         
