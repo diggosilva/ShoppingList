@@ -29,4 +29,10 @@ struct Purchase: Codable {
         self.date = Date()
         self.items = items
     }
+    
+    init(id: UUID = UUID(), date: Date, items: [MarketItem]) {
+        self.id = id
+        self.date = date
+        self.items = items
+    }
 }
