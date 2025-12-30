@@ -128,7 +128,7 @@ extension ShoppingListViewController {
 extension ShoppingListViewController {
     @objc private func finishPurchase() {
         let alert = UIAlertController(title: "Finalizar Compra", message: "Deseja realmente finalizar a compra?", preferredStyle: .alert)
-        let ok = UIAlertAction(title: "Ok", style: .default) { action in
+        let ok = UIAlertAction(title: "Ok", style: .default) { _ in
             self.hasItemsToPurchase()
         }
         
@@ -155,13 +155,13 @@ extension ShoppingListViewController {
     
     private func showAlertPurchaseEmpty() {
         let alert = UIAlertController(title: "Carrinho vazio ❌", message: "Seu carrinho está vazio. Adicione itens para finalizar.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
     
     private func showAlertPurchaseSaved() {
         let alert = UIAlertController(title: "Compra salva ✅", message: "Sua compra foi adicionada ao histórico.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
     
