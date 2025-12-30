@@ -60,6 +60,28 @@ extension PurchaseDetailsViewController {
     }
     
     @objc private func exportPurchase() {
+        let alert = UIAlertController(title: "Exportar compra", message: "Escolha o formato", preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "PDF", style: .default) { _ in
+            self.exportAsPDF()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Texto (WhatsApp)", style: .default) { _ in
+            self.exportAsText()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func exportAsPDF() {
+        let builder = PurchasePDFBuilder(viewModel: viewModel)
+        let pdfData = builder.build()
+        let activityVC = UIActivityViewController(activityItems: [pdfData], applicationActivities: nil)
+        present(activityVC, animated: true)
+    }
+    
+    private func exportAsText() {
         let text = viewModel.exportText()
         let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         present(activityVC, animated: true)
@@ -97,6 +119,7 @@ extension PurchaseDetailsViewController: UISearchResultsUpdating {
     }
 }
 
+//MARK: SearchControllerDelegate
 extension PurchaseDetailsViewController: UISearchControllerDelegate {
     func didDismissSearchController(_ searchController: UISearchController) {
         viewModel.resetFilter()
