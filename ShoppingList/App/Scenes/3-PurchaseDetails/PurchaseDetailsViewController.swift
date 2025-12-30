@@ -48,7 +48,7 @@ extension PurchaseDetailsViewController: UITableViewDataSource {
     }
     
     private func backgroundColor(for indexPath: IndexPath) -> UIColor {
-        return indexPath.row.isMultiple(of: 2) ? .systemCyan.withAlphaComponent(0.2) : .systemBackground
+        return indexPath.row.isMultiple(of: 2) ? .systemBackground : .systemCyan.withAlphaComponent(0.2)
     }
 }
 
