@@ -30,6 +30,28 @@ class PurchaseDetailsViewController: UIViewController {
         configureDataSource()
         updateTotal()
     }
+    
+    override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
+        let hasResults = viewModel.numberOfRows() > 0
+        
+        guard !hasResults else {
+            contentUnavailableConfiguration = nil
+            return
+        }
+        
+        var config = UIContentUnavailableConfiguration.empty()
+        config.image = UIImage(systemName: "magnifyingglass")
+        config.text = "Nenhum item encontrado"
+        
+        let searchText = viewModel.currentSearchText()
+        
+        if searchText.isEmpty {
+            config.secondaryText = "Essa compra não possui itens."
+        } else {
+            config.secondaryText = "Nenhum item corresponde a \"\(searchText)\""
+        }
+        contentUnavailableConfiguration = config
+    }
 }
 
 //MARK: TableView
@@ -105,6 +127,7 @@ extension PurchaseDetailsViewController: UISearchResultsUpdating {
         text.isEmpty ? viewModel.resetFilter() : viewModel.filterItems(with: text)
         
         purchaseDetailsView.tableView.reloadData()
+        setNeedsUpdateContentUnavailableConfiguration()
     }
     
     private func configureSearchController() {
@@ -124,5 +147,6 @@ extension PurchaseDetailsViewController: UISearchControllerDelegate {
     func didDismissSearchController(_ searchController: UISearchController) {
         viewModel.resetFilter()
         purchaseDetailsView.tableView.reloadData()
+        setNeedsUpdateContentUnavailableConfiguration()
     }
 }
