@@ -62,9 +62,12 @@ func highlightedText(fullText: String, highlight: String) -> NSAttributedString 
     guard !highlight.isEmpty else {
         return attributed
     }
+    
+    let normalizedFullText = fullText.normalizedForSearch()
+    let normalizedHighlight = highlight.normalizedForSearch()
 
-    let range = (fullText.lowercased() as NSString)
-        .range(of: highlight.lowercased())
+    let range = (normalizedFullText as NSString)
+        .range(of: normalizedHighlight)
 
     if range.location != NSNotFound {
         attributed.addAttributes([
@@ -79,5 +82,11 @@ func highlightedText(fullText: String, highlight: String) -> NSAttributedString 
 extension UIView {
     func addSubviews(_ views: UIView...) {
         views.forEach { addSubview($0) }
+    }
+}
+
+extension String {
+    func normalizedForSearch() -> String {
+        return folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
     }
 }
