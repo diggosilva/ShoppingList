@@ -48,16 +48,18 @@ final class PurchaseDetailsViewModel: PurchaseDetailsViewModelProtocol {
     func filterItems(with text: String) {
         searchText = text
         
-        guard !text.isEmpty else {
+        let normalizedSearch = text.normalizedForSearch()
+        
+        guard !normalizedSearch.isEmpty else {
             resetFilter()
             return
         }
         
         isFiltering = true
         filteredItems = purchase.items.filter {
-            $0.name.lowercased().contains(text.lowercased()) ||
-            $0.unitPrice.description.lowercased().contains(text.lowercased()) ||
-            $0.quantity.description.lowercased().contains(text.lowercased())
+            $0.name.normalizedForSearch().contains(normalizedSearch) ||
+            $0.unitPrice.description.lowercased().contains(normalizedSearch) ||
+            $0.quantity.description.lowercased().contains(normalizedSearch)
         }
     }
     
