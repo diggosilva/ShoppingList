@@ -5,7 +5,7 @@
 //  Created by Diggo Silva on 25/12/25.
 //
 
-import UIKit
+import SwiftUI
 
 class PurchaseHistoryViewController: UIViewController {
     
@@ -27,6 +27,29 @@ class PurchaseHistoryViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureDelegatesAndDataSources()
+        setupChartHeader()
+    }
+    
+    private func setupChartHeader() {
+        let data = viewModel.monthlySpending()
+
+        guard !data.isEmpty else {
+            purchaseHistoryView.tableView.tableHeaderView = nil
+            return
+        }
+
+        let chartView = MonthlySpendingChartView(data: data)
+        let hostingController = UIHostingController(rootView: chartView)
+        hostingController.view.backgroundColor = UIColor.clear
+
+        let height: CGFloat = 180
+        hostingController.view.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: view.bounds.width,
+            height: height
+        )
+        purchaseHistoryView.tableView.tableHeaderView = hostingController.view
     }
     
     private func configureNavigationBar() {
