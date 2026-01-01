@@ -11,6 +11,7 @@ protocol PurchaseHistoryViewModelProtocol: AnyObject {
     func numberOfRows() -> Int
     func purchaseForRow(at index: Int) -> Purchase
     func loadPurchases()
+    func monthlySpending() -> [MonthlySpend]
 }
 
 final class PurchaseHistoryViewModel: PurchaseHistoryViewModelProtocol {
@@ -33,5 +34,29 @@ final class PurchaseHistoryViewModel: PurchaseHistoryViewModelProtocol {
     
     func loadPurchases() {
         purchases = repository.loadPurchases().sorted(by: { $0.date > $1.date })
+    }
+    
+    func monthlySpending() -> [MonthlySpend] {
+        let calendar = Calendar.current
+        var spending: [DateComponents : Double] = [:]
+
+        purchases.forEach { purchase in
+            let components = calendar.dateComponents([.year, .month], from: purchase.date)
+            spending[components, default: 0] += purchase.totalValue
+        }
+
+        let now = calendar.startOfMonth(for: Date())
+
+        return (0..<6).compactMap { offset in
+            guard let monthDate = calendar.date(byAdding: .month, value: -offset, to: now) else {
+                return nil
+            }
+
+            let components = calendar.dateComponents([.year, .month], from: monthDate)
+            let total = spending[components, default: 0]
+
+            return MonthlySpend(month: monthDate, total: total)
+        }
+        .sorted { $0.month < $1.month }
     }
 }
