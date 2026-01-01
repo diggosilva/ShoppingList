@@ -56,4 +56,67 @@ final class PurchaseHistoryViewModelTests: XCTestCase {
         XCTAssertEqual(sut.purchaseForRow(at: 0).date, newerDate)
         XCTAssertEqual(sut.purchaseForRow(at: 1).date, olderDate)
     }
+    
+    func test_monthlySpending_returnsSixMonths() {
+        let result = sut.monthlySpending()
+        
+        XCTAssertEqual(result.count, 6)
+    }
+    
+    func test_monthlySpending_aggregatesPurchasesInSameMonth() {
+        let now = Date()
+        
+        let item1 = MarketItem.mock(unitPrice: 100)
+        let item2 = MarketItem.mock(unitPrice: 50)
+        
+        let purchase1 = Purchase(date: now, items: [item1])
+        let purchase2 = Purchase(date: now, items: [item2])
+        
+        repository.purchasesToLoad = [purchase1, purchase2]
+        sut.loadPurchases()
+        
+        let result = sut.monthlySpending()
+        let currentMonth = result.last
+        
+        XCTAssertEqual(currentMonth?.total, 150)
+    }
+    
+    func test_monthlySpending_sumsMultipleItemsInSinglePurchase() {
+        let now = Date()
+        
+        let item1 = MarketItem.mock(unitPrice: 10, quantity: 2)
+        let item2 = MarketItem.mock(unitPrice: 15, quantity: 2)
+        
+        let purchase = Purchase(date: now, items: [item1, item2])
+        
+        repository.purchasesToLoad = [purchase]
+        sut.loadPurchases()
+        
+        let result = sut.monthlySpending()
+        let currentMonth = result.last
+        
+        XCTAssertEqual(currentMonth?.total, 50)
+    }
+    
+    func test_monthlySpending_includesMonthsWithZeroSpending() {
+        let now = Date()
+        
+        let item = MarketItem.mock(unitPrice: 200)
+        
+        let purchase = Purchase(date: now, items: [item])
+        
+        repository.purchasesToLoad = [purchase]
+        sut.loadPurchases()
+        
+        let result = sut.monthlySpending()
+        
+        XCTAssertEqual(result.count, 6)
+        XCTAssertTrue(result.contains { $0.total == 0 })
+    }
+}
+
+extension MarketItem {
+    static func mock(unitPrice: Double, quantity: Int = 1, name: String = "Item") -> MarketItem {
+        return MarketItem(name: name, unitPrice: unitPrice, quantity: quantity)
+    }
 }
