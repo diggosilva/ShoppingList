@@ -98,8 +98,8 @@ extension PurchaseDetailsViewController {
     
     private func exportAsPDF() {
         let builder = PurchasePDFBuilder(viewModel: viewModel)
-        let pdfData = builder.build()
-        let activityVC = UIActivityViewController(activityItems: [pdfData], applicationActivities: nil)
+        let fileURL = builder.buildPDFFile()
+        let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
         present(activityVC, animated: true)
     }
     
