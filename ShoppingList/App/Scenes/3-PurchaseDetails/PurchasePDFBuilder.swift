@@ -20,10 +20,11 @@ final class PurchasePDFBuilder {
         self.viewModel = viewModel
     }
     
-    func build() -> Data {
+    func buildPDFFile() -> URL {
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+        let fileURL = FileManager.default.temporaryDirectory.appending(component: fileName())
         
-        let data = renderer.pdfData { context in
+        try? renderer.writePDF(to: fileURL) { context in
             var y: CGFloat = margin + headerHeight
             var pageNumber = 1
             
@@ -46,7 +47,16 @@ final class PurchasePDFBuilder {
             y += 20
             drawTotals(y: y)
         }
-        return data
+        return fileURL
+    }
+    
+    private func fileName() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.dateFormat = "yyyy-MM-dd 'as' HH.mm.ss"
+        
+        let dateString = formatter.string(from: Date())
+        return "Lista de Compras \(dateString).pdf"
     }
 }
 
