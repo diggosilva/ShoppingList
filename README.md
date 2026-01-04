@@ -7,7 +7,7 @@
 ![Architecture](https://img.shields.io/badge/Architecture-MVVM-purple)
 ![Persistence](https://img.shields.io/badge/Persistence-UserDefaults-yellow)
 ![Export](https://img.shields.io/badge/Export-PDF-red)
-![Tests](https://img.shields.io/badge/Unit_Tests-Passing-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-Unit_&_Snapshot-brightgreen)
 
 Aplicativo iOS desenvolvido com **UIKit + ViewCode**, focado em boas práticas, arquitetura limpa e aprendizado progressivo.
 
@@ -22,7 +22,7 @@ Este projeto simula um app real de **lista de compras**, permitindo criar compra
 - Organizar regras de negócio fora da ViewController
 - Trabalhar com persistência local
 - Integrar SwiftUI de forma pontual
-- Implementar e manter **testes unitários**
+- Implementar e manter **testes automatizados**
 - Evoluir o app de forma incremental e profissional
 
 ---
@@ -35,7 +35,7 @@ Este projeto simula um app real de **lista de compras**, permitindo criar compra
 - Repository Pattern
 - **SwiftUI (uso pontual para gráficos)**
 - Sem Storyboard
-- Sem Combine (por enquanto)
+- Sem Combine (intencional)
 
 ---
 
@@ -66,6 +66,7 @@ Representa uma compra finalizada.
 - Repositórios separados para:
   - Lista ativa de compras
   - Histórico de compras
+- Persistência isolada da ViewModel via protocolos
 
 ---
 
@@ -102,12 +103,10 @@ Representa uma compra finalizada.
   - Quantidade de itens
   - Quantidade total de unidades
 - **Header com gráfico de gastos**
-  - Gráfico implementado em **SwiftUI**
+  - Gráfico implementado em **SwiftUI (Swift Charts)**
   - Integrado ao `tableHeaderView` da `UITableView`
   - Exibe o **total gasto nos últimos 6 meses**
   - Atualizado dinamicamente conforme o histórico
-- **Filtros de histórico configurados**
-  - Busca e refinamento conforme critérios definidos no app
 
 ---
 
@@ -128,7 +127,7 @@ Representa uma compra finalizada.
 
 ### 🔍 Busca nos Detalhes da Compra
 
-- SearchController integrado à navigation bar
+- `UISearchController` integrado à navigation bar
 - Busca inteligente que:
   - **Ignora acentuação**
   - **Não diferencia letras maiúsculas e minúsculas**
@@ -138,6 +137,7 @@ Representa uma compra finalizada.
   - Quantidade
 - Resultados consistentes mesmo com termos digitados parcialmente
 - Reset correto ao limpar ou fechar a busca
+- Empty State nativo quando não há resultados
 
 ---
 
@@ -145,10 +145,14 @@ Representa uma compra finalizada.
 
 - Exportação dos detalhes da compra
 - Opções disponíveis:
-  - **Texto formatado via UIActivityViewController**
+  - **Texto formatado (WhatsApp / Compartilhar)**
   - **Exportação em PDF**
-- PDF gerado com layout e conteúdo personalizados
-- Compartilhamento nativo do iOS
+- PDF gerado com layout próprio:
+  - Cabeçalho
+  - Lista de itens
+  - Totais
+  - Paginação automática
+- Compartilhamento via `UIActivityViewController`
 
 ---
 
@@ -158,13 +162,19 @@ Representa uma compra finalizada.
 - Responsabilidades bem definidas
 - ViewModels sem dependência de UIKit
 - Integração clara entre UIKit e SwiftUI
-- **Testes unitários implementados**
+- **Testes unitários**
   - Foco em regras de negócio
   - Validação de cálculos e estados
-  -  Repositórios isolados
+  - Repositórios mockados
+- **Snapshot Tests**
+  - Aplicados apenas em telas críticas
+  - Proteção contra regressões visuais
+  - Ambiente controlado (device, tema e dados fixos)
 
 ---
 
 ## 📌 Observações
 
 Este projeto tem foco educacional, mas segue **padrões próximos ao mercado profissional**, priorizando clareza, manutenção, testabilidade e evolução contínua.
+
+Decisões como **não exagerar em snapshots**, **evitar dependências desnecessárias** e **manter ViewModels enxutos** fazem parte do aprendizado intencional do projeto.
