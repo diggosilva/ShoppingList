@@ -15,8 +15,8 @@ final class PurchaseDetailsViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let items = [
-            MarketItem(name: "Leite", unitPrice: 5, quantity: 2),
-            MarketItem(name: "Pão", unitPrice: 2, quantity: 3)
+            MarketItem(name: "Leite", unitPrice: 5, quantity: 2, isByWeight: false),
+            MarketItem(name: "Pão", unitPrice: 19.90, quantity: 0.080, isByWeight: true)
         ]
         
         let purchase = Purchase(date: Date(timeIntervalSince1970: 1000), items: items)
@@ -30,9 +30,9 @@ final class PurchaseDetailsViewModelTests: XCTestCase {
     }
     
     func test_totals_shouldReturnTheCorrectValues() {
-        XCTAssertEqual(sut.totalValue, 16)
+        XCTAssertEqual(sut.totalValue, 11.592)
         XCTAssertEqual(sut.totalItems, 2)
-        XCTAssertEqual(sut.totalQuantity, 5)
+        XCTAssertEqual(sut.totalQuantity, 2.08)
     }
     
     func test_numberOfRows_withoutFilters_shouldReturnTheCorrectValue() {

@@ -16,9 +16,9 @@ final class PurchaseHistoryViewControllerSnapshotTests: XCTestCase {
         let fixedDate = Date(timeIntervalSince1970: 1_700_000_000)
 
         let items = [
-            MarketItem(name: "Arroz", unitPrice: 10, quantity: 2),
-            MarketItem(name: "Feijão", unitPrice: 8, quantity: 1),
-            MarketItem(name: "Carne", unitPrice: 35, quantity: 1)
+            MarketItem(name: "Arroz", unitPrice: 10, quantity: 2, isByWeight: false),
+            MarketItem(name: "Feijão", unitPrice: 8, quantity: 1, isByWeight: false),
+            MarketItem(name: "Carne", unitPrice: 35, quantity: 1, isByWeight: false)
         ]
 
         let purchase = Purchase(date: fixedDate, items: items)
