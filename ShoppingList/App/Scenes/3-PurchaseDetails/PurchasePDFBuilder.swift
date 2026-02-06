@@ -60,6 +60,7 @@ final class PurchasePDFBuilder {
     }
 }
 
+// MARK: - Drawing Helpers
 private extension PurchasePDFBuilder {
     
     func drawHeader(context: UIGraphicsPDFRendererContext, page: Int) {
@@ -69,15 +70,12 @@ private extension PurchasePDFBuilder {
         
         "Detalhes da Compra".draw(at: CGPoint(x: margin, y: margin), withAttributes: titleAttributes)
         
-        // Se quiser a data aqui no futuro, posso expor pela ViewModel
+        // Placeholder para subtítulo (pode colocar data futuramente)
         " ".draw(at: CGPoint(x: margin, y: margin), withAttributes: subTitleAttibutes)
         
         let pageText = "Página \(page)"
         pageText.draw(at: CGPoint(x: pageRect.width - margin - 60, y: pageRect.height - margin - 10), withAttributes: footerAttibutes)
     }
-}
-
-private extension PurchasePDFBuilder {
     
     func drawItem(_ item: MarketItem, y: CGFloat) {
         let nameFont = UIFont.boldSystemFont(ofSize: 14)
@@ -87,7 +85,15 @@ private extension PurchasePDFBuilder {
             .draw(at: CGPoint(x: margin, y: y),
                   withAttributes: [.font: nameFont])
         
-        let detailText = "\(formatCurrency(value: item.unitPrice)) x \(item.quantity) = \(formatCurrency(value: item.totalValue))"
+        // Aqui mantemos o mesmo formato: preço x quantidade = total
+        let quantityText: String
+        if item.isByWeight {
+            quantityText = String(format: "%.3f kg", item.quantity)
+        } else {
+            quantityText = "\(Int(item.quantity)) un"
+        }
+        
+        let detailText = "\(formatCurrency(value: item.unitPrice)) x \(quantityText) = \(formatCurrency(value: item.totalValue))"
         
         detailText
             .draw(at: CGPoint(x: margin + 20, y: y + 18),
@@ -106,7 +112,8 @@ private extension PurchasePDFBuilder {
             .draw(at: CGPoint(x: margin, y: y + 24),
                   withAttributes: [.font: valueFont])
         
-        "Unidades: \(viewModel.totalQuantity)"
+        // Aqui usamos a string formatada da ViewModel
+        "Unidades: \(viewModel.totalQuantityString)"
             .draw(at: CGPoint(x: margin, y: y + 40),
                   withAttributes: [.font: valueFont])
     }

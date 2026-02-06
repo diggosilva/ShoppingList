@@ -116,7 +116,7 @@ extension PurchaseDetailsViewController {
     private func updateTotal() {
         purchaseDetailsView.totalLabel.text = "TOTAL: \(formatCurrency(value: viewModel.totalValue))"
         purchaseDetailsView.totalItemsLabel.text = "Itens: \(viewModel.totalItems)"
-        purchaseDetailsView.totalUnitLabel.text = "Unidades: \(viewModel.totalQuantity)"
+        purchaseDetailsView.totalUnitLabel.text = "Unidades: \(viewModel.totalQuantityString)"
     }
 }
 
