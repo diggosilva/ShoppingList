@@ -26,8 +26,8 @@ final class PurchaseHistoryViewModelTests: XCTestCase {
     }
     
     func test_fetchPurchases() {
-        let item1 = MarketItem(name: "Leite", unitPrice: 5, quantity: 1)
-        let item2 = MarketItem(name: "Pão", unitPrice: 2, quantity: 1)
+        let item1 = MarketItem(name: "Leite", unitPrice: 5, quantity: 1, isByWeight: false)
+        let item2 = MarketItem(name: "Pão", unitPrice: 19.90, quantity: 0.080, isByWeight: true)
         let purchase = Purchase(items: [item1, item2])
         
         repository.purchasesToLoad = [purchase]
@@ -39,7 +39,7 @@ final class PurchaseHistoryViewModelTests: XCTestCase {
     }
     
     func test_loadPurchases_sortsPurchasesByDateDescending() {
-        let item = MarketItem(name: "Leite", unitPrice: 5, quantity: 1)
+        let item = MarketItem(name: "Leite", unitPrice: 5, quantity: 1, isByWeight: false)
         
         let olderDate = Date(timeIntervalSince1970: 1000)
         let newerDate = Date(timeIntervalSince1970: 2000)
@@ -117,6 +117,6 @@ final class PurchaseHistoryViewModelTests: XCTestCase {
 
 extension MarketItem {
     static func mock(unitPrice: Double, quantity: Int = 1, name: String = "Item") -> MarketItem {
-        return MarketItem(name: name, unitPrice: unitPrice, quantity: quantity)
+        return MarketItem(name: name, unitPrice: unitPrice, quantity: Double(quantity), isByWeight: false)
     }
 }
