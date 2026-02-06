@@ -73,8 +73,12 @@ final class ShoppingListCell: UITableViewCell {
         nameLabel.text = item.name
         unitPriceLabel.text = formatCurrency(value: item.unitPrice)
         totalValueLabel.text = "Total: \(formatCurrency(value: item.totalValue))"
-
-        quantityLabel.text = "Qtd: \(item.quantity)"
+        
+        if item.quantity.truncatingRemainder(dividingBy: 1) == 0 {
+            quantityLabel.text = "Qtd: \(Int(item.quantity))"
+        } else {
+            quantityLabel.text = String(format: "Kg: %.3f", item.quantity)
+        }
         quantityStepper.value = Double(item.quantity)
     }
 }

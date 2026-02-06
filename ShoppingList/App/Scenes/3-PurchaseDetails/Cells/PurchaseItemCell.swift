@@ -53,7 +53,7 @@ final class PurchaseItemCell: UITableViewCell {
     func configure(item: MarketItem, highlight text: String) {
         nameLabel.attributedText = highlightedText(fullText: item.name, highlight: text)
         unitPriceLabel.text = "\(formatCurrency(value: item.unitPrice))"
-        quantityLabel.text = "x \(item.quantity)"
+        quantityLabel.text = "x \(item.quantityString)"
         totalLabel.text = formatCurrency(value: item.totalValue)
     }
 }

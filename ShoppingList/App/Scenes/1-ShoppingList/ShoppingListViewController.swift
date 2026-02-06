@@ -9,8 +9,10 @@ import UIKit
 
 class ShoppingListViewController: UIViewController {
     
-    private let shoppingListView = ShoppingListView()
+    private let contentView = ShoppingListView()
     private let viewModel: ShoppingListViewModelProtocol
+    
+    private var searchController = UISearchController(searchResultsController: nil)
     
     init(viewModel: ShoppingListViewModelProtocol = ShoppingListViewModel()) {
         self.viewModel = viewModel
@@ -19,9 +21,7 @@ class ShoppingListViewController: UIViewController {
     
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    override func loadView() {
-        view = shoppingListView
-    }
+    override func loadView() { view = contentView }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +29,17 @@ class ShoppingListViewController: UIViewController {
         configureDelegatesAndDataSources()
         binding()
         viewModel.loadItems()
+        enableDismissKeyboardOnTapOutsideSearch()
+    }
+    
+    private func enableDismissKeyboardOnTapOutsideSearch() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissSearchKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        contentView.tableView.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissSearchKeyboard() {
+        searchController.searchBar.resignFirstResponder()
     }
 }
 
@@ -97,6 +108,12 @@ extension ShoppingListViewController {
             UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(finishPurchase)),
             UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItemTapped)),
         ]
+        
+        searchController.searchBar.placeholder = "Buscar items..."
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
     }
     
     @objc private func openHistory() {
@@ -105,22 +122,36 @@ extension ShoppingListViewController {
     }
     
     private func configureDelegatesAndDataSources() {
-        shoppingListView.tableView.dataSource = self
-        shoppingListView.tableView.delegate = self
+        contentView.tableView.dataSource = self
+        contentView.tableView.delegate = self
     }
     
     private func binding() {
         viewModel.onDataChanged = { [weak self] in
-            self?.shoppingListView.tableView.reloadData()
+            self?.contentView.tableView.reloadData()
             self?.updateTotal()
         }
     }
     
     private func updateTotal() {
         let total = viewModel.totalPurchaseValue
-        shoppingListView.totalLabel.text = "Total: \(formatCurrency(value: total))"
-        shoppingListView.itemsLabel.text = viewModel.totalItems > 1 ? "\(viewModel.totalItems) itens" : "\(viewModel.totalItems) item"
-        shoppingListView.quantityLabel.text = viewModel.totalQuantity > 1 ? "\(viewModel.totalQuantity) unidades" : "\(viewModel.totalQuantity) unidade"
+        contentView.totalLabel.text = "Total: \(formatCurrency(value: total))"
+        contentView.itemsLabel.text = viewModel.totalItems > 1 ? "\(viewModel.totalItems) itens" : "\(viewModel.totalItems) item"
+        
+        // Quantidade separada
+        let units = viewModel.totalQuantityUnits
+        let weight = viewModel.totalQuantityWeight
+        
+        var quantityText = ""
+        if units > 0 {
+            quantityText += "\(units) unidades"
+        }
+        if weight > 0 {
+            if !quantityText.isEmpty { quantityText += ", " }
+            quantityText += "\(String(format: "%.3f", weight)) Kg"
+        }
+        
+        contentView.quantityLabel.text = quantityText
     }
 }
 
@@ -173,13 +204,13 @@ extension ShoppingListViewController {
         }
         
         alert.addTextField {
-            $0.placeholder = "Preço unitário"
+            $0.placeholder = "Preço (unitário ou kg)"
             $0.keyboardType = .decimalPad
         }
         
         alert.addTextField {
-            $0.placeholder = "Quantidade"
-            $0.keyboardType = .numberPad
+            $0.placeholder = "Quantidade / Peso"
+            $0.keyboardType = .decimalPad
             $0.text = "1"
         }
         
@@ -208,7 +239,7 @@ extension ShoppingListViewController {
         }
         alert.addTextField {
             $0.text = String(item.quantity)
-            $0.keyboardType = .numberPad
+            $0.keyboardType = .decimalPad
         }
         
         let saveAction = UIAlertAction(title: "Salvar", style: .default) { [weak self] _ in
@@ -217,7 +248,7 @@ extension ShoppingListViewController {
             else { return }
             
             self.viewModel.updateItem(updatedItem)
-            self.shoppingListView.tableView.reloadRows(at: [indexPath], with: .automatic)
+            self.contentView.tableView.reloadRows(at: [indexPath], with: .automatic)
             self.updateTotal()
         }
         
@@ -239,28 +270,46 @@ extension ShoppingListViewController {
               let mainAction = alert.actions.first else { return }
         
         let name = fields[0].text ?? ""
-        let price = Double(fields[1].text?.replacingOccurrences(of: ",", with: ".") ?? "")
-        let quantity = Int(fields[2].text ?? "")
+        
+        let priceText = fields[1].text?.replacingOccurrences(of: ",", with: ".") ?? ""
+        let price = Double(priceText)
+        
+        let quantityText = fields[2].text?.replacingOccurrences(of: ",", with: ".") ?? ""
+        let quantity = Double(quantityText)
         
         mainAction.isEnabled = !name.isEmpty && price != nil && (quantity ?? 0) > 0
     }
     
     private func makeItemFromAlert(_ alert: UIAlertController, existingID: UUID? = nil) -> MarketItem? {
         guard let fields = alert.textFields,
-              let name = fields[0].text, !name.isEmpty,
-              let price = Double(fields[1].text!.replacingOccurrences(of: ",", with: ".")),
-              let quantity = Int(fields[2].text!),
+              let name = fields[0].text, !name.isEmpty else { return nil }
+        
+        let priceText = fields[1].text!.replacingOccurrences(of: ",", with: ".")
+        let quantityText = fields[2].text!.replacingOccurrences(of: ",", with: ".")
+        
+        guard let price = Double(priceText),
+              let quantity = Double(quantityText),
               quantity > 0 else { return nil }
         
+        let isByWeight = quantity.truncatingRemainder(dividingBy: 1) != 0
+        
         if let id = existingID {
-            return MarketItem(id: id, name: name, unitPrice: price, quantity: quantity)
+            return MarketItem(id: id, name: name, unitPrice: price, quantity: quantity, isByWeight: isByWeight)
         } else {
-            return MarketItem(name: name, unitPrice: price, quantity: quantity)
+            return MarketItem(name: name, unitPrice: price, quantity: quantity, isByWeight: isByWeight)
         }
     }
     
     private func handleAddItem(alert: UIAlertController) {
         guard let item = makeItemFromAlert(alert) else { return }
         viewModel.addItem(item)
+    }
+}
+
+extension ShoppingListViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let text = searchController.searchBar.text ?? ""
+        viewModel.search(text: text)
+        contentView.tableView.reloadData()
     }
 }
